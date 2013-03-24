@@ -7,6 +7,15 @@
 
 #import <UIKit/UIKit.h>
 
+#define USE_EXTENSIONS YES
+#ifdef USE_EXTENSIONS
+#import "UIView+Border.h"
+#import "UIView+RoundedCorners.h"
+#import "UIView+Gradient.h"
+#import "UIView+Shadow.h"
+#import "UIButton+CenteredContent.h"
+#endif
+
 @interface TPMultiLayoutViewController : UIViewController {
     UIView *portraitView;
     UIView *landscapeView;
