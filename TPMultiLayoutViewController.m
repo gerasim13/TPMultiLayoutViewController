@@ -235,15 +235,15 @@ static NSMutableSet* sViewClassesToIgnore = nil;
     
 #ifdef USE_EXTENSIONS
     // UIView+Shadow
-    attributes[@"shadowOffset"] = [NSValue valueWithCGSize:view.shadowOffset];
-    attributes[@"shadowRadius"] = @(view.shadowRadius);
+    attributes[@"shadowOffset"]  = [NSValue valueWithCGSize:view.shadowOffset];
+    attributes[@"shadowRadius"]  = @(view.shadowRadius);
     attributes[@"shadowOpacity"] = @(view.shadowOpacity);
     if (view.shadowColor) {
         attributes[@"shadowColor"] = view.shadowColor;
     }
     // UIView+RoundedCorners
     attributes[@"cornerRadius"] = @(view.cornerRadius);
-    attributes[@"borderWidth"] = @(view.borderWidth);
+    attributes[@"borderWidth"]  = @(view.borderWidth);
     // UIView+Border
     if (view.borderColor) {
         attributes[@"borderColor"] = view.borderColor;
@@ -255,8 +255,8 @@ static NSMutableSet* sViewClassesToIgnore = nil;
     
     if ([view isKindOfClass:[UIButton class]]) {
         UIButton *button = (UIButton*)view;
-        attributes[@"imageEdgeInsets"] = [NSValue valueWithUIEdgeInsets:button.imageEdgeInsets];
-        attributes[@"titleEdgeInsets"] = [NSValue valueWithUIEdgeInsets:button.titleEdgeInsets];
+        attributes[@"imageEdgeInsets"]   = [NSValue valueWithUIEdgeInsets:button.imageEdgeInsets];
+        attributes[@"titleEdgeInsets"]   = [NSValue valueWithUIEdgeInsets:button.titleEdgeInsets];
         attributes[@"contentEdgeInsets"] = [NSValue valueWithUIEdgeInsets:button.contentEdgeInsets];
         // UIButton+CenteredContent
         attributes[@"contentSpacing"] = @(button.contentSpacing);
@@ -276,13 +276,13 @@ static NSMutableSet* sViewClassesToIgnore = nil;
                          
 #ifdef USE_EXTENSIONS
                          // UIView+Shadow
-                         view.shadowOffset = [attributes[@"shadowOffset"] CGSizeValue];
-                         view.shadowRadius = [attributes[@"shadowRadius"] floatValue];
+                         view.shadowOffset  = [attributes[@"shadowOffset"] CGSizeValue];
+                         view.shadowRadius  = [attributes[@"shadowRadius"] floatValue];
                          view.shadowOpacity = [attributes[@"shadowOpacity"] floatValue];
-                         view.shadowColor = attributes[@"shadowColor"];
+                         view.shadowColor   = attributes[@"shadowColor"];
                          // UIView+RoundedCorners
                          view.cornerRadius = [attributes[@"cornerRadius"] floatValue];
-                         view.borderWidth = [attributes[@"borderWidth"] floatValue];
+                         view.borderWidth  = [attributes[@"borderWidth"] floatValue];
                          // UIView+Border
                          view.borderColor = attributes[@"borderColor"];
                          // UIView+Gradient
@@ -290,8 +290,8 @@ static NSMutableSet* sViewClassesToIgnore = nil;
                          
                          if ([view isKindOfClass:[UIButton class]]) {
                              UIButton *button = (UIButton*)view;
-                             button.imageEdgeInsets = [attributes[@"imageEdgeInsets"] UIEdgeInsetsValue];
-                             button.titleEdgeInsets = [attributes[@"titleEdgeInsets"] UIEdgeInsetsValue];
+                             button.imageEdgeInsets   = [attributes[@"imageEdgeInsets"] UIEdgeInsetsValue];
+                             button.titleEdgeInsets   = [attributes[@"titleEdgeInsets"] UIEdgeInsetsValue];
                              button.contentEdgeInsets = [attributes[@"contentEdgeInsets"] UIEdgeInsetsValue];
                              // UIButton+CenteredContent
                              button.contentSpacing = [attributes[@"contentSpacing"] floatValue];
