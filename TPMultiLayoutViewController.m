@@ -106,19 +106,23 @@ static NSMutableSet* sViewClassesToIgnore = nil;
 }
 
 - (void)addAttributesForSubviewHierarchy:(UIView*)view associatedWithSubviewHierarchy:(UIView*)associatedView toTable:(NSMutableDictionary*)table {
-	// Ignore views with negative tag
-	if ( view.tag < 0 ) {
-		return;
-	}
-
-    [table setObject:[self attributesForView:view] forKey:[NSValue valueWithPointer:(__bridge const void *)(associatedView)]];
+    // Ignore views with negative tag
+    if ( view.tag < 0 ) {
+        return;
+    }
     
-    if ( ![self shouldDescendIntoSubviewsOfView:view] ) return;
-    
-    for ( UIView *subview in view.subviews ) {
-        UIView *associatedSubView = (view == associatedView ? subview : [self findAssociatedViewForView:subview amongViews:associatedView.subviews]);
-        if ( associatedSubView ) {
-            [self addAttributesForSubviewHierarchy:subview associatedWithSubviewHierarchy:associatedSubView toTable:table];
+    @autoreleasepool {
+        [table setObject:[self attributesForView:view] forKey:[NSValue valueWithPointer:(__bridge const void *)(associatedView)]];
+        
+        if ( ![self shouldDescendIntoSubviewsOfView:view] ) return;
+        
+        for ( UIView *subview in view.subviews ) {
+            @autoreleasepool {
+                UIView *associatedSubView = (view == associatedView ? subview : [self findAssociatedViewForView:subview amongViews:associatedView.subviews]);
+                if ( associatedSubView ) {
+                    [self addAttributesForSubviewHierarchy:subview associatedWithSubviewHierarchy:associatedSubView toTable:table];
+                }
+            }
         }
     }
 }
@@ -226,78 +230,80 @@ static NSMutableSet* sViewClassesToIgnore = nil;
 }
 
 - (NSDictionary*)attributesForView:(UIView*)view {
-    NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
-    
-    [attributes setObject:[NSValue valueWithCGRect:view.frame] forKey:@"frame"];
-    [attributes setObject:[NSValue valueWithCGRect:view.bounds] forKey:@"bounds"];
-    [attributes setObject:[NSNumber numberWithBool:view.hidden] forKey:@"hidden"];
-    [attributes setObject:[NSNumber numberWithInteger:view.autoresizingMask] forKey:@"autoresizingMask"];
-    
+    @autoreleasepool {
+        NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
+        
+        [attributes setObject:[NSValue valueWithCGRect:view.frame] forKey:@"frame"];
+        [attributes setObject:[NSValue valueWithCGRect:view.bounds] forKey:@"bounds"];
+        [attributes setObject:[NSNumber numberWithBool:view.hidden] forKey:@"hidden"];
+        [attributes setObject:[NSNumber numberWithInteger:view.autoresizingMask] forKey:@"autoresizingMask"];
+        
 #ifdef USE_EXTENSIONS
-    // UIView+Shadow
-    attributes[@"shadowOffset"]  = [NSValue valueWithCGSize:view.shadowOffset];
-    attributes[@"shadowRadius"]  = @(view.shadowRadius);
-    attributes[@"shadowOpacity"] = @(view.shadowOpacity);
-    if (view.shadowColor) {
-        attributes[@"shadowColor"] = view.shadowColor;
-    }
-    // UIView+RoundedCorners
-    attributes[@"cornerRadius"] = @(view.cornerRadius);
-    attributes[@"borderWidth"]  = @(view.borderWidth);
-    // UIView+Border
-    if (view.borderColor) {
-        attributes[@"borderColor"] = view.borderColor;
-    }
-    // UIView+Gradient
-    if (view.gradientColor) {
-        attributes[@"gradientColor"] = view.gradientColor;
-    }
-    
-    if ([view isKindOfClass:[UIButton class]]) {
-        UIButton *button = (UIButton*)view;
-        attributes[@"imageEdgeInsets"]   = [NSValue valueWithUIEdgeInsets:button.imageEdgeInsets];
-        attributes[@"titleEdgeInsets"]   = [NSValue valueWithUIEdgeInsets:button.titleEdgeInsets];
-        attributes[@"contentEdgeInsets"] = [NSValue valueWithUIEdgeInsets:button.contentEdgeInsets];
-        // UIButton+CenteredContent
-        attributes[@"contentSpacing"] = @(button.contentSpacing);
-    }
+        // UIView+Shadow
+        attributes[@"shadowOffset"]  = [NSValue valueWithCGSize:view.shadowOffset];
+        attributes[@"shadowRadius"]  = @(view.shadowRadius);
+        attributes[@"shadowOpacity"] = @(view.shadowOpacity);
+        if (view.shadowColor) {
+            attributes[@"shadowColor"] = view.shadowColor;
+        }
+        // UIView+RoundedCorners
+        attributes[@"cornerRadius"] = @(view.cornerRadius);
+        attributes[@"borderWidth"]  = @(view.borderWidth);
+        // UIView+Border
+        if (view.borderColor) {
+            attributes[@"borderColor"] = view.borderColor;
+        }
+        // UIView+Gradient
+        if (view.gradientColor) {
+            attributes[@"gradientColor"] = view.gradientColor;
+        }
+        
+        if ([view isKindOfClass:[UIButton class]]) {
+            UIButton *button = (UIButton*)view;
+            attributes[@"imageEdgeInsets"]   = [NSValue valueWithUIEdgeInsets:button.imageEdgeInsets];
+            attributes[@"titleEdgeInsets"]   = [NSValue valueWithUIEdgeInsets:button.titleEdgeInsets];
+            attributes[@"contentEdgeInsets"] = [NSValue valueWithUIEdgeInsets:button.contentEdgeInsets];
+            // UIButton+CenteredContent
+            attributes[@"contentSpacing"] = @(button.contentSpacing);
+        }
 #endif
-    
-    return attributes;
+        
+        return attributes;
+    }
 }
 
 - (void)applyAttributes:(NSDictionary*)attributes toView:(UIView*)view duration:(NSTimeInterval)duration {
 	[UIView animateWithDuration:duration
 					 animations:^{
-						 view.frame = [[attributes objectForKey:@"frame"] CGRectValue];
-						 view.bounds = [[attributes objectForKey:@"bounds"] CGRectValue];
-						 view.hidden = [[attributes objectForKey:@"hidden"] boolValue];
-						 view.autoresizingMask = [[attributes objectForKey:@"autoresizingMask"] integerValue];
-                         
+                         @autoreleasepool {
+                             view.frame = [[attributes objectForKey:@"frame"] CGRectValue];
+                             view.bounds = [[attributes objectForKey:@"bounds"] CGRectValue];
+                             view.hidden = [[attributes objectForKey:@"hidden"] boolValue];
+                             view.autoresizingMask = [[attributes objectForKey:@"autoresizingMask"] integerValue];
 #ifdef USE_EXTENSIONS
-                         // UIView+Shadow
-                         view.shadowOffset  = [attributes[@"shadowOffset"] CGSizeValue];
-                         view.shadowRadius  = [attributes[@"shadowRadius"] floatValue];
-                         view.shadowOpacity = [attributes[@"shadowOpacity"] floatValue];
-                         view.shadowColor   = attributes[@"shadowColor"];
-                         // UIView+RoundedCorners
-                         view.cornerRadius = [attributes[@"cornerRadius"] floatValue];
-                         view.borderWidth  = [attributes[@"borderWidth"] floatValue];
-                         // UIView+Border
-                         view.borderColor = attributes[@"borderColor"];
-                         // UIView+Gradient
-                         view.gradientColor = attributes[@"gradientColor"];
-                         
-                         if ([view isKindOfClass:[UIButton class]]) {
-                             UIButton *button = (UIButton*)view;
-                             button.imageEdgeInsets   = [attributes[@"imageEdgeInsets"] UIEdgeInsetsValue];
-                             button.titleEdgeInsets   = [attributes[@"titleEdgeInsets"] UIEdgeInsetsValue];
-                             button.contentEdgeInsets = [attributes[@"contentEdgeInsets"] UIEdgeInsetsValue];
-                             // UIButton+CenteredContent
-                             button.contentSpacing = [attributes[@"contentSpacing"] floatValue];
-                         }
+                             // UIView+Shadow
+                             view.shadowOffset  = [attributes[@"shadowOffset"] CGSizeValue];
+                             view.shadowRadius  = [attributes[@"shadowRadius"] floatValue];
+                             view.shadowOpacity = [attributes[@"shadowOpacity"] floatValue];
+                             view.shadowColor   = attributes[@"shadowColor"];
+                             // UIView+RoundedCorners
+                             view.cornerRadius = [attributes[@"cornerRadius"] floatValue];
+                             view.borderWidth  = [attributes[@"borderWidth"] floatValue];
+                             // UIView+Border
+                             view.borderColor = attributes[@"borderColor"];
+                             // UIView+Gradient
+                             view.gradientColor = attributes[@"gradientColor"];
+                             
+                             if ([view isKindOfClass:[UIButton class]]) {
+                                 UIButton *button = (UIButton*)view;
+                                 button.imageEdgeInsets   = [attributes[@"imageEdgeInsets"] UIEdgeInsetsValue];
+                                 button.titleEdgeInsets   = [attributes[@"titleEdgeInsets"] UIEdgeInsetsValue];
+                                 button.contentEdgeInsets = [attributes[@"contentEdgeInsets"] UIEdgeInsetsValue];
+                                 // UIButton+CenteredContent
+                                 button.contentSpacing = [attributes[@"contentSpacing"] floatValue];
+                             }
 #endif
-                         
+                         }
 					 }];
 }
 
