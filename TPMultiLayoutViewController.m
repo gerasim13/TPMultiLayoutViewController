@@ -7,7 +7,9 @@
 
 #import "TPMultiLayoutViewController.h"
 
-#define VERBOSE_MATCH_FAIL 1 // Comment this out to be less verbose when associated views can't be found
+#ifdef DEBUG
+    #define VERBOSE_MATCH_FAIL 1 // Comment this out to be less verbose when associated views can't be found
+#endif
 
 #define USE_EXTENSIONS YES
 #ifdef USE_EXTENSIONS
@@ -69,7 +71,7 @@ static NSMutableSet* sViewClassesToIgnore = nil;
     [super viewDidLoad];
     
     // Construct attribute tables
-    self.portraitAttributes = [self attributeTableForViewHierarchy:self.portraitView associateWithViewHierarchy:self.view];
+    self.portraitAttributes  = [self attributeTableForViewHierarchy:self.portraitView associateWithViewHierarchy:self.view];
     self.landscapeAttributes = [self attributeTableForViewHierarchy:self.landscapeView associateWithViewHierarchy:self.view];
     self.viewIsCurrentlyPortrait = (self.view == self.portraitView);
 }
